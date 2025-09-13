@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 
-const TONES = ["Petty", "Mean", "Scranton Breakup", "Verbose & Vicious", "Surprise Me"];
+const TONES = [
+  "Petty",
+  "Cold",
+  "Poetic",
+  "Cosmic",
+  "Mean",
+  "Country Song",
+  "Legalese",
+  "Therapist Voice",
+  "Inspirational Coach",
+  "Scranton Breakup",
+  "TikTok Breakup",
+  "Verbose & Vicious",
+  "Surprise Me",
+] as const;
+type Tone = typeof TONES[number];
+
 
 export default function Compose() {
   const [breakerName, setBreakerName] = useState("");
