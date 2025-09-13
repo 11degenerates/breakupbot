@@ -14,24 +14,34 @@ export default function ThreadView({ thread }: Props) {
 
   if (!thread) return <div className="container"><p>Thread not found or expired.</p></div>;
 
-  async function reply() {
-    setLoading(true); setError(null);
-    try {
-      const res = await fetch(`/api/reply?slug=${thread.slug}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tone })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
-      setOk(true);
-      location.href = `/t/${thread.slug}`; // refresh to show updated thread
-    } catch(e:any) {
-      setError(e.message || 'Error');
-    } finally {
-      setLoading(false);
-    }
+async function reply() {
+  setLoading(true); setError(null);
+
+  // Guard: make sure we have a slug
+  const slug = thread?.slug;
+  if (!slug) {
+    setLoading(false);
+    setError('Thread not found.');
+    return;
   }
+
+  try {
+    const res = await fetch(`/api/reply?slug=${encodeURIComponent(slug)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tone })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    setOk(true);
+    location.href = `/t/${slug}`; // refresh to show updated thread
+  } catch (e: any) {
+    setError(e.message || 'Error');
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   return (
     <div className="container">
