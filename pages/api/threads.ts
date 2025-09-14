@@ -55,9 +55,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const base = baseUrlFromReq(req);
     // Build a fully-qualified URL safely
- const readUrl = new URL(`/read/${encodeURIComponent(id)}`, base).toString();
-
-    return res.status(200).json({ id, readUrl });
+ // inside handler after you create `id` and `base`
+const readUrl = new URL(`/read/${encodeURIComponent(id)}`, base).toString();
+return res.status(200).json({ id, readUrl });
   } catch (e: any) {
     return res.status(500).json({ error: e?.message || "Server error" });
   }
