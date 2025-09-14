@@ -3,7 +3,7 @@ export async function generateBreakup(input: {
   recipientName?: string;
   durationText?: string;
   tone: string;
-}) : Promise<string> {
+}): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY!;
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
@@ -56,11 +56,40 @@ export async function generateBreakup(input: {
     })
   });
 
-  if (!res.ok) {
-    const errTxt = await res.text();
-    throw new Error(`OpenAI error: ${res.status} ${errTxt}`);
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("OpenAI returned a non-JSON response.");
   }
-  const data = await res.json();
-  const text = data.output_text || (data.choices && data.choices[0]?.message?.content) || "Something glitched. Try again.";
-  return text.trim();
+
+  if (!res.ok) {
+    const msg = data?.error?.message || JSON.stringify(data);
+    throw new Error(`OpenAI error: ${res.status} ${msg}`);
+  }
+
+  // Robust text extraction for the Responses API
+  const fromOutputArray = () => {
+    if (!Array.isArray(data.output)) return "";
+    try {
+      return data.output
+        .map((part: any) =>
+          Array.isArray(part?.content)
+            ? part.content.map((c: any) => c?.text ?? "").join("")
+            : ""
+        )
+        .join("\n")
+        .trim();
+    } catch {
+      return "";
+    }
+  };
+
+  const text =
+    (typeof data.output_text === "string" && data.output_text.trim()) ||
+    fromOutputArray() ||
+    (data.choices && data.choices[0]?.message?.content) || // extra fallback
+    "";
+
+  return (text || "The model did not return any text. Please try again.").trim();
 }
