@@ -1,3 +1,4 @@
+// lib/openai.ts
 export async function generateBreakup(input: {
   breakerName?: string;
   recipientName?: string;
@@ -7,7 +8,6 @@ export async function generateBreakup(input: {
   const apiKey = process.env.OPENAI_API_KEY!;
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
-  // Hard guardrails: edgy but no hate/harassment
   const banned = [
     "I hope you can take a moment",
     "with an open heart",
@@ -57,7 +57,7 @@ export async function generateBreakup(input: {
     "If output is under 6 sentences, KEEP WRITING until the length rule is met."
   ].join("\n");
 
-  // Few-shot examples to steer away from polite tone:
+  // Few-shot examples (to anchor the bite)
   const examplePettyUser = "Write a breakup. Tone: Petty. Recipient: Taylor. Relationship length: 8 months. Sign as: —";
   const examplePettyAssistant =
     "Taylor, consider this the unsubscribe link you’ve been ignoring. Eight months in and your greatest hits were ‘forgot my wallet’ and ‘what’s your Netflix password?’ I’m retiring from carrying conversations, plans, and your sense of time. You treat effort like a limited edition drop and somehow never check out. I want chemistry, not customer service. So congrats: you’re free to ghost in peace, and I’m free to stop pretending that ‘busy’ is a personality. Keep the hoodies; I’m keeping my Saturdays. Door’s closed—try the knob labeled ‘self-awareness’ on your way out.";
@@ -78,7 +78,6 @@ export async function generateBreakup(input: {
     model,
     temperature: 0.95,
     top_p: 0.9,
-    presence_penalty: 0.3,
     max_output_tokens: 450,
     input: [
       { role: "system", content: system },
