@@ -1,24 +1,37 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.query;
 
-// In-memory store shared across requests in a single server process.
-// (Good for demos. For production, swap to a DB.)
-const mem: Map<string, any> = (globalThis as any).__BB_MEM__ || new Map<string, any>();
-(globalThis as any).__BB_MEM__ = mem;
+  // Build a robust base URL: prefer env, otherwise infer from request headers
+  const hdrs = context.req.headers;
+  const proto =
+    (hdrs["x-forwarded-proto"] as string) ||
+    (hdrs["x-forwarded-protocol"] as string) ||
+    "https";
+  const host =
+    (hdrs["x-forwarded-host"] as string) ||
+    (hdrs.host as string) ||
+    "localhost:3000";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
+  const base = (process.env.SITE_URL?.trim() || `${proto}://${host}`).replace(/\/+$/,"");
+  const url = `${base}/api/threads/${encodeURIComponent(String(id))}`;
 
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      return { props: { messageText: null, breakerName: null, recipientName: null, tone: null, durationText: null } };
+    }
+    const data = await res.json();
+
+    return {
+      props: {
+        messageText: data.messageText || null,
+        breakerName: data.breakerName || null,
+        recipientName: data.recipientName || null,
+        tone: data.tone || null,
+        durationText: data.durationText || null,
+      },
+    };
+  } catch {
+    return { props: { messageText: null, breakerName: null, recipientName: null, tone: null, durationText: null } };
   }
-  if (typeof id !== "string" || !id.trim()) {
-    return res.status(400).json({ error: "Bad id" });
-  }
-
-  const row = mem.get(id);
-  if (!row) {
-    return res.status(404).json({ error: "Not found" });
-  }
-
-  return res.status(200).json(row);
-}
+};
