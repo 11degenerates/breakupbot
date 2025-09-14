@@ -94,7 +94,7 @@ export default function Compose() {
             <button className="btn" onClick={approve} disabled={!draft}>Approve & Create Link</button>
             <button className="btn" onClick={resetTries}>Reset Tries</button>
           </div>
-          <div className="notice">Retries: {tries}/{MAX_TRIES} {tries>=MAX_TRIES && "— You’ve had three chances. If none worked, maybe you’re the problem."}</div>
+          <div className="notice">Retries: {tries}/{MAX_TRIES} {tries>=MAX_TRIES && "— You’ve had three chances. If none worked, maybe you’re the problem.  But don’t panic — I’ll let you back in after a 10-minute timeout. Try to actually end it properly next time."}</div>
         </div>
         <div className="controls">
           <div className="pre" style={{width:'100%', minHeight:120}}>{draft || "Your draft will appear here..."}</div>
