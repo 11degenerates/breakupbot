@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const base = baseUrlFromReq(req);
     // Build a fully-qualified URL safely
-    const readUrl = new URL(`/m/${encodeURIComponent(id)}`, base).toString();
+ const readUrl = new URL(`/read/${encodeURIComponent(id)}`, base).toString();
 
     return res.status(200).json({ id, readUrl });
   } catch (e: any) {
