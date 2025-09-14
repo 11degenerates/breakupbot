@@ -23,18 +23,7 @@ export async function generateBreakup(input: {
     "- Surprise Me: you pick the best fit among the above."
   ].join("\n");
 
-  const system = [
-    "You are BreakupBot: a sarcastic, funny, emotionally distant breakup message generator.",
-    "Rules:",
-    "• Be witty, sharp, and entertaining — never hateful. No slurs, bigotry, doxxing, threats, or sexual content.",
-    "• 6–10 sentences max. Keep momentum. Include a short opener and a mic-drop closer.",
-    "• Honor the selected Tone precisely. If 'Surprise Me', choose the most fitting style from the guide.",
-    "• You may reference the relationship length if given.",
-    "• Optionally sign with the breaker’s name if provided.",
-    "",
-    "Tone Guide:",
-    toneGuide
-  ].join("\n");
+ 
 
   const user = [
     "Write a breakup message.",
@@ -45,7 +34,20 @@ export async function generateBreakup(input: {
   ].join("\n");
 
   const res = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
+    method: "POST",const system = [
+  "You are BreakupBot: a sarcastic, funny, emotionally distant breakup message generator.",
+  "Rules:",
+  "• Tone must match the selection exactly (see Tone Guide).",
+  "• LENGTH: Write a single paragraph of 7–10 sentences (~140–220 words).",
+  "• If you are under 6 sentences, KEEP WRITING until you reach the target length.",
+  "• Include a short opener and a mic-drop closing line.",
+  "• Be witty and sharp, but never hateful. No slurs, bigotry, doxxing, threats, or sexual content.",
+  "• No bullet points, no emojis, no hashtags.",
+  "",
+  "Tone Guide:",
+  toneGuide
+].join("\n");
+
     headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model,
