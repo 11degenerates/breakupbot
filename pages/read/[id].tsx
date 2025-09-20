@@ -3,13 +3,13 @@ import React from "react";
 import { useRouter } from "next/router";
 
 type Thread = {
-  id: string;
+  id?: string;
   breakerName: string | null;
   recipientName: string;
   durationText: string | null;
   tone: string;
   messageText: string;
-  createdAt: number;
+  createdAt?: number;
 };
 
 export default function ReadPage() {
@@ -26,12 +26,13 @@ export default function ReadPage() {
       try {
         setLoading(true);
         const res = await fetch(`/api/threads/${encodeURIComponent(id)}`);
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Not found");
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json?.error || "Not found");
         setData(json);
         setErr(null);
       } catch (e: any) {
-        setErr(e.message || "Error");
+        setErr(e?.message || "Error");
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -39,7 +40,11 @@ export default function ReadPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="container"><div className="card">Loading…</div></div>;
+    return (
+      <div className="container">
+        <div className="card">Loading…</div>
+      </div>
+    );
   }
 
   if (err || !data) {
