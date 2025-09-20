@@ -1,42 +1,47 @@
 // pages/read/[id].tsx
-import React from "react";
 import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 
 type Thread = {
-  id?: string;
+  id: string;
   breakerName: string | null;
   recipientName: string;
   durationText: string | null;
   tone: string;
   messageText: string;
-  createdAt?: number;
+  createdAt: number;
 };
 
 export default function ReadPage() {
   const router = useRouter();
   const { id } = router.query;
 
-  const [data, setData] = React.useState<Thread | null>(null);
-  const [err, setErr] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [data, setData] = useState<Thread | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!id || typeof id !== "string") return;
-    (async () => {
+
+    const fetchData = async () => {
       try {
         setLoading(true);
         const res = await fetch(`/api/threads/${encodeURIComponent(id)}`);
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(json?.error || "Not found");
+        const json = await res.json();
+        if (!res.ok) {
+          throw new Error(json.error || "Message not found");
+        }
         setData(json);
-        setErr(null);
-      } catch (e: any) {
-        setErr(e?.message || "Error");
+        setError(null);
+      } catch (err: any) {
+        setError(err.message || "Something went wrong.");
         setData(null);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    fetchData();
   }, [id]);
 
   if (loading) {
@@ -47,14 +52,17 @@ export default function ReadPage() {
     );
   }
 
-  if (err || !data) {
+  if (error || !data) {
     return (
       <div className="container">
         <div className="card">
           <h1 className="h1">Link not found</h1>
-          <p className="sub">This message may have expired or the link is invalid.</p>
+          <p className="sub">
+            This message may have expired or the link is invalid.
+          </p>
           <p className="sub" style={{ marginTop: 12 }}>
-            Want to make your own? <a href="/">Go to itsbreakupbot.com</a>
+            Want to make your own?{" "}
+            <a href="/">Go to itsbreakupbot.com</a>
           </p>
         </div>
       </div>
@@ -69,7 +77,10 @@ export default function ReadPage() {
           Tone: {data.tone}
           {data.durationText ? ` · Together: ${data.durationText}` : ""}
         </p>
-        <div className="pre" style={{ whiteSpace: "pre-wrap", marginTop: 12 }}>
+        <div
+          className="pre"
+          style={{ whiteSpace: "pre-wrap", marginTop: 12 }}
+        >
           {data.messageText}
         </div>
         <p className="sub" style={{ marginTop: 8 }}>
@@ -77,10 +88,13 @@ export default function ReadPage() {
         </p>
 
         <p className="sub" style={{ marginTop: 20 }}>
-          Want to respond? <a href="/">Generate your own at itsbreakupbot.com</a>.
+          Want to respond?{" "}
+          <a href="/">Generate your own at itsbreakupbot.com</a>.
         </p>
 
-        <div className="footer">© 11 Degenerates — for entertainment only.</div>
+        <div className="footer">
+          © 11 Degenerates — for entertainment only.
+        </div>
       </div>
     </div>
   );
