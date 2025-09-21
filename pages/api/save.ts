@@ -2,8 +2,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { store, MessageRow } from "@/lib/store";
 import { makeCode } from "@/lib/code";
+import { applyCors } from "@/lib/cors";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyCors(req, res)) return; // OPTIONS handled
+
   if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
   try {
@@ -12,7 +15,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Generate a short code (retry a few times if a collision occurs)
     let code = makeCode();
     for (let i = 0; i < 3; i++) {
       const exists = await store.get(code);
