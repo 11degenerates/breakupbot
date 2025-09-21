@@ -1,8 +1,9 @@
 // pages/api/save.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { store, MessageRow } from "@/lib/store";
-import { makeCode } from "@/lib/code";
-import { applyCors } from "@/lib/cors";
+import { store, MessageRow } from "../../lib/store";
+import { makeCode } from "../../lib/code";
+import { applyCors } from "../../lib/cors";
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (applyCors(req, res)) return; // OPTIONS handled
