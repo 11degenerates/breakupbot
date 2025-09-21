@@ -1,8 +1,11 @@
 // pages/api/get/[code].ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { store } from "@/lib/store";
+import { applyCors } from "@/lib/cors";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyCors(req, res)) return; // OPTIONS handled
+
   if (req.method !== "GET") return res.status(405).json({ error: "Method Not Allowed" });
 
   try {
@@ -12,13 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const msg = await store.get(code);
-    if (!msg) {
-      return res.status(404).json({ error: "Message not found" });
-    }
+    if (!msg) return res.status(404).json({ error: "Message not found" });
 
     return res.status(200).json(msg);
   } catch (e: any) {
     return res.status(500).json({ error: "Internal error", detail: String(e?.message || e) });
   }
 }
-
